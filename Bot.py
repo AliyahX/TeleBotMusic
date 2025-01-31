@@ -1,46 +1,42 @@
 import os
-import yt_dlp
 from telegram import Update
-from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackContext
+from telegram.ext import Updater, CommandHandler, CallbackContext
+import requests
 
-# Replace 'YOUR_TELEGRAM_BOT_TOKEN' with your actual bot token
-TELEGRAM_BOT_TOKEN = os.getenv('7271834580:AAEQxjMXilZbRGp5TAAhQ6ljJ0wLj5wJ9VI')
+# Your Telegram bot token
+TOKEN = os.getenv("7271834580:AAEQxjMXilZbRGp5TAAhQ6ljJ0wLj5wJ9VI")
 
 def start(update: Update, context: CallbackContext) -> None:
-    update.message.reply_text('Hi! Send me a YouTube link, and I will download the audio for you.')
+    update.message.reply_text('Hi! Send me a song name to download.')
 
 def download_song(update: Update, context: CallbackContext) -> None:
-    url = update.message.text
-    update.message.reply_text('Downloading... Please wait.')
-
-    ydl_opts = {
-        'format': 'bestaudio/best',
-        'outtmpl': 'downloads/%(title)s.%(ext)s',
-        'postprocessors': [{
-            'key': 'FFmpegExtractAudio',
-            'preferredcodec': 'mp3',
-            'preferredquality': '192',
-        }],
-    }
-
-    with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-        info_dict = ydl.extract_info(url, download=True)
-        file_path = ydl.prepare_filename(info_dict).replace('.webm', '.mp3')
+    song_name = ' '.join(context.args)
+    if not song_name:
+        update.message.reply_text('Please provide a song name.')
+        return
     
-    update.message.reply_text('Download complete! Sending the file...')
-    update.message.reply_audio(audio=open(file_path, 'rb'))
-    os.remove(file_path)
+    # Dummy download logic
+    update.message.reply_text(f"Downloading '{song_name}'...")
 
-def main() -> None:
-    updater = Updater(TELEGRAM_BOT_TOKEN)
+    # Implement actual download logic here
+    # For example, using a music API or scraping a website
 
+    # Reply with download link or file
+    update.message.reply_text(f"'{song_name}' downloaded! (This is a placeholder)")
+
+def main():
+    # Set up the Updater
+    updater = Updater(TOKEN)
+    
+    # Get the dispatcher to register handlers
     dispatcher = updater.dispatcher
-
+    
+    # Register handlers
     dispatcher.add_handler(CommandHandler("start", start))
-    dispatcher.add_handler(MessageHandler(Filters.text & ~Filters.command, download_song))
-
+    dispatcher.add_handler(CommandHandler("download", download_song))
+    
+    # Start the Bot
     updater.start_polling()
-
     updater.idle()
 
 if __name__ == '__main__':
