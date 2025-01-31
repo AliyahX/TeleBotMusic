@@ -27,3 +27,7 @@ jobs:
       run: python bot.py
       env:
         TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
+
+    - name: Deployment success message
+      if: success()  # This step will run only if all previous steps were successful
+      run: echo "Deployment was successful!"
